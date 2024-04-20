@@ -11,8 +11,12 @@ data class Puzzle(
 
     fun isValid() = columns().all { columnTrie.startsWith(it.trim()) || columnTrie.search(it) }
             && rows().all { rowTrie.startsWith(it.trim()) || rowTrie.search(it) }
+            && (completeRows() + completeColumns()).let { it.distinct() == it }
 
     fun addChar(c: Char) = this.copy(letters = letters.plus(c))
+
+    fun validNextChars(): Set<Char> = rowTrie.children(rows().getOrElse(letters.size / width) { "" })
+        .intersect(columnTrie.children(columns().getOrElse(letters.size % width) { "" }))
 
     private fun rows(): List<String> = letters
         .chunked(width)
@@ -22,6 +26,10 @@ data class Puzzle(
         .withIndex()
         .groupBy(keySelector = { it.index % width }, valueTransform = { it.value })
         .map { it.value.joinToString(separator = "") }
+
+    private fun completeRows() = rows().filter { it.length == width }
+
+    private fun completeColumns() = columns().filter { it.length == height }
 
     private fun isWord(word: String, trie: Trie): Boolean = trie.search(word)
 

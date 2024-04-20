@@ -36,4 +36,15 @@ class Trie {
         }
         return currentNode.word == null
     }
+
+    fun children(word: String): Set<Char> {
+        var currentNode = root
+        word.forEach { char ->
+            if (currentNode.childNodes[char] == null) {
+                return emptySet()
+            }
+            currentNode = currentNode.childNodes[char]!!
+        }
+        return currentNode.childNodes.keys
+    }
 }
